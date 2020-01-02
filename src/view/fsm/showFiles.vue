@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button class="btn-show" @click="checkSuccess" type="primary">预览pdf</el-button>
+    <el-button class="btn-show" @click="preview" type="primary">预览pdf</el-button>
     <el-button class="btn-show" @click="toggleSelection" type="primary">分享</el-button>
     <el-table
       :data="tableData"
@@ -55,7 +55,11 @@
         width="180">
       </el-table-column>
     </el-table>
+
+    <!--<iframe :src="pdfAddress" width="100%" height="99%"></iframe>-->
+
   </div>
+
 </template>
 
 <script>
@@ -75,19 +79,34 @@
           updateTime: "",
           remark: ""
         }],
-        arrList: []
+        arrList: [],
+        pdfAddress:""
       }
     },
     mounted() {
       this.show("")
     },
     methods: {
-      checkSuccess() {
-        // 后台返回流的形式，也是我本人项目的使用
-        let url = "http://localhost:8081/show/pdfPreview"
-        // let url = 'https://dluat.hscf.com/api/esm/v1/contractTemplates/load/c08def54aa40412b8b511406fc0271d2/0?access_token=ea19dc0de8801b389ed5099a2297161d&name=cehsi.pdf'
-        // 当然上面的是可以的，但是此access_token 是有时效性的，只是放在这边当作个例子，至于最后我为什么加了个测试.pdf 是可以在浏览器标签叶上显示
-        window.open('/static/pdf/web/viewer.html?file=' + encodeURIComponent(url))
+      preview() {
+        var arrList = this.arrList;
+        if (arrList.length>1){
+          this.$alert("只能预览一个文件", {
+            confirmButtonText: '确定',
+          });
+          return;
+        }
+        var arrListElement = arrList[0];
+        if (arrListElement.fileType == 0){
+          this.$alert("不能预览文件夹", {
+            confirmButtonText: '确定',de
+          });
+          return;
+        }
+        // let url = "http://localhost:8081/show/pdfPreview";
+        // window.open('/static/pdf/web/viewer.html?file=' + encodeURIComponent(url))
+        // 后台返回流的形式
+        let url = "http://localhost:8081/show/pdfPreview?path="+arrListElement.directory;
+        window.open('/static/pdf/web/viewer.html?file=' + encodeURI(url))
       },
       //页面渲染
       show(data) {
@@ -144,7 +163,7 @@
         var param = this.$route.query.fileId;
         this.show(param);
         //将mounted中的数据在这里重新加载一下即可
-      }
+      },
     }
   }
 </script>
