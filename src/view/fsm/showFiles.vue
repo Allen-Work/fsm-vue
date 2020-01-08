@@ -88,7 +88,6 @@
     },
     methods: {
       preview() {
-        debugger
         var arrList = this.arrList;
         if (arrList.length>1){
           this.$alert("只能预览一个文件", {
@@ -103,16 +102,16 @@
           });
           return;
         }
-        // let url = "http://localhost:8081/show/pdfPreview";
-        // window.open('/static/pdf/web/viewer.html?file=' + encodeURIComponent(url))
         // 后台返回流的形式
+        // var url = 'http://192.168.75.134:8081/show/pdfPreview?fullfilename='+arrListElement.fileName; //要预览文件的访问地址
+        // window.open('http://192.168.75.134:8012/onlinePreview?url='+encodeURIComponent(url));
 
-        var url = 'http://127.0.0.1:8081/show/pdfPreview?fullfilename='+arrListElement.fileName; //要预览文件的访问地址
-        window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(url));
+        // var url = 'http://localhost:8081/show/pdfPreview?fullfilename='+arrListElement.fileName; //要预览文件的访问地址
+        // window.open('http://localhost:8012/onlinePreview?url='+encodeURIComponent(url));
 
-
-        // let url = "http://localhost:8081/show/pdfPreview?path="+arrListElement.directory;
-        // window.open('/static/pdf/web/viewer.html?file=' + encodeURI(url))
+        var originUrl = 'http://127.0.0.1:8081/show/pdfPreview?fileId='+arrListElement.fileId; //要预览文件的访问地址
+        var previewUrl = originUrl + '&fullfilename='+arrListElement.fileName;
+        window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(previewUrl));
       },
       //页面渲染
       show(data) {
