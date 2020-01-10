@@ -98,7 +98,7 @@
         var arrListElement = arrList[0];
         if (arrListElement.fileType == 0){
           this.$alert("不能预览文件夹", {
-            confirmButtonText: '确定',de
+            confirmButtonText: '确定',
           });
           return;
         }
@@ -109,16 +109,16 @@
         // var url = 'http://localhost:8081/show/pdfPreview?fullfilename='+arrListElement.fileName; //要预览文件的访问地址
         // window.open('http://localhost:8012/onlinePreview?url='+encodeURIComponent(url));
 
-        var originUrl = 'http://127.0.0.1:8081/show/pdfPreview?fileId='+arrListElement.fileId; //要预览文件的访问地址
+        var originUrl = 'http://192.168.75.134:8081/show/pdfPreview?fileId='+arrListElement.fileId; //要预览文件的访问地址
         var previewUrl = originUrl + '&fullfilename='+arrListElement.fileName;
-        window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(previewUrl));
+        window.open('http://192.168.75.134:8012/onlinePreview?url='+encodeURIComponent(previewUrl));
       },
       //页面渲染
       show(data) {
         this.axios({
           method: "get",
           params: {"fileId": data},
-          url: "http://localhost:8081/show/getFileList"
+          url: "http://192.168.75.134:8081/show/getFileList"
         }).then(response => {
           var result = response.data.data;
           if (result != null) {
