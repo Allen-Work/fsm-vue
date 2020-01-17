@@ -1,6 +1,6 @@
-<template>
+<template xmlns:v-clipboard="http://www.w3.org/1999/xhtml">
   <div>
-    <el-button class="btn-show" @click="preview" type="primary">预览pdf</el-button>
+    <el-button class="btn-show" @click="preview" type="primary">预览</el-button>
     <el-button class="btn-show" @click="toggleSelection" type="primary">分享</el-button>
     <el-table
       :data="tableData"
@@ -55,9 +55,7 @@
         width="180">
       </el-table-column>
     </el-table>
-
     <!--<iframe :src="pdfAddress" width="100%" height="99%"></iframe>-->
-
   </div>
 
 </template>
@@ -80,7 +78,7 @@
           remark: ""
         }],
         arrList: [],
-        pdfAddress:""
+        pdfAddress: ""
       }
     },
     mounted() {
@@ -89,14 +87,14 @@
     methods: {
       preview() {
         var arrList = this.arrList;
-        if (arrList.length>1){
+        if (arrList.length > 1) {
           this.$alert("只能预览一个文件", {
             confirmButtonText: '确定',
           });
           return;
         }
         var arrListElement = arrList[0];
-        if (arrListElement.fileType == 0){
+        if (arrListElement.fileType == 0) {
           this.$alert("不能预览文件夹", {
             confirmButtonText: '确定',
           });
@@ -106,19 +104,20 @@
         // var url = 'http://192.168.75.134:8081/show/pdfPreview?fullfilename='+arrListElement.fileName; //要预览文件的访问地址
         // window.open('http://192.168.75.134:8012/onlinePreview?url='+encodeURIComponent(url));
 
-        // var url = 'http://localhost:8081/show/pdfPreview?fullfilename='+arrListElement.fileName; //要预览文件的访问地址
-        // window.open('http://localhost:8012/onlinePreview?url='+encodeURIComponent(url));
+        var originUrl = 'http://localhost:8081/show/pdfPreview?fileId=' + arrListElement.fileId; //要预览文件的访问地址
+        var previewUrl = originUrl + '&fullfilename=' + arrListElement.fileName;
+        window.open('http://localhost:8012/onlinePreview?url=' + encodeURIComponent(previewUrl));
 
-        var originUrl = 'http://192.168.75.134:8081/show/pdfPreview?fileId='+arrListElement.fileId; //要预览文件的访问地址
-        var previewUrl = originUrl + '&fullfilename='+arrListElement.fileName;
-        window.open('http://192.168.75.134:8012/onlinePreview?url='+encodeURIComponent(previewUrl));
+        // var originUrl = 'http://192.168.75.134:8081/show/pdfPreview?fileId='+arrListElement.fileId; //要预览文件的访问地址
+        // var previewUrl = originUrl + '&fullfilename='+arrListElement.fileName;
+        // window.open('http://192.168.75.134:8012/onlinePreview?url='+encodeURIComponent(previewUrl));
       },
       //页面渲染
       show(data) {
         this.axios({
           method: "get",
           params: {"fileId": data},
-          url: "http://192.168.75.134:8081/show/getFileList"
+          url: "http://localhost:8081/show/getFileList"
         }).then(response => {
           var result = response.data.data;
           if (result != null) {
@@ -140,17 +139,16 @@
       //分享
       toggleSelection() {
         var arrList = this.arrList;
-        var directorys = "";
+        var fileIds = "";
         for (let i = 0; i < arrList.length; i++) {
-          directorys += arrList[i].directory + ",";
+          fileIds += arrList[i].fileId + ",";
         }
-        console.log("directorys", directorys)
         this.axios({
           method: "post",
-          params: {"path": GeneralUtils.removeTheLastComma(directorys)},
+          params: {"fileIds": GeneralUtils.removeTheLastComma(fileIds)},
           url: "http://localhost:8081/share/generateLink"
         }).then(response => {
-          this.$alert('生成的地址' + response.data.data, {
+          this.$alert('生成的地址:' + response.data.data, {
             confirmButtonText: '确定',
           });
         }).catch(error => {
@@ -159,7 +157,6 @@
       },
       //获取选中的row
       handleSelectionChange(val) {
-        console.log("val", val)
         this.arrList = val
       }
     },
