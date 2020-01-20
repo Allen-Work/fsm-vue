@@ -55,7 +55,18 @@
         width="180">
       </el-table-column>
     </el-table>
-    <!--<iframe :src="pdfAddress" width="100%" height="99%"></iframe>-->
+
+    <!-- 分页 paging -->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-sizes="[10,20,30,40]"
+      :page-size="pageSize"
+      layout="total,sizes, prev, pager, next, jumper"
+      background
+      :total="total"
+    ></el-pagination>
   </div>
 
 </template>
@@ -78,11 +89,15 @@
           remark: ""
         }],
         arrList: [],
-        pdfAddress: ""
+        pdfAddress: "",
+        total: 0,
+        pageSize: 10,
+        currentPage: 1,
+        fileId:""
       }
     },
     mounted() {
-      this.show("")
+      this.show()
     },
     methods: {
       preview() {
@@ -113,15 +128,23 @@
         // window.open('http://192.168.75.134:8012/onlinePreview?url='+encodeURIComponent(previewUrl));
       },
       //页面渲染
-      show(data) {
+      show() {
+        let params = {
+          "currentPage": this.currentPage,
+          "pageSize": this.pageSize,
+          "fileId": this.fileId
+        }
         this.axios({
           method: "get",
-          params: {"fileId": data},
+          params: params,
           url: "http://localhost:8081/show/getFileList"
+          // url: "http://192.168.75.134:8081/show/getFileList"
         }).then(response => {
           var result = response.data.data;
-          if (result != null) {
-            this.tableData = result;
+          this.total = result.total;
+          // this.totalSize = result.total;
+          if (result.list) {
+            this.tableData = result.list;
           } else {
             this.$alert(response.data.msg, {
               confirmButtonText: '确定',
@@ -131,6 +154,17 @@
         }).catch(error => {
           console.log(error);
         })
+      },
+      handleSizeChange: function (size) {
+        this.pageSize = size;
+        console.log(this.pageSize);  //每页下拉显示数据
+        this.show();
+      },
+      handleCurrentChange: function (currentPage) {
+        this.currentPage = currentPage;
+        console.log(this.currentPage);  //点击第几页
+        this.show();
+
       },
       //点击一行任意位置选中checkbox
       clickRow(row) {
@@ -146,6 +180,7 @@
         this.axios({
           method: "post",
           params: {"fileIds": GeneralUtils.removeTheLastComma(fileIds)},
+          // url: "http://192.168.75.134:8081/share/generateLink"
           url: "http://localhost:8081/share/generateLink"
         }).then(response => {
           this.$alert('生成的地址:' + response.data.data, {
@@ -163,7 +198,8 @@
     watch: {
       $route(to, from) {
         var param = this.$route.query.fileId;
-        this.show(param);
+        this.fileId = param;
+        this.show();
         //将mounted中的数据在这里重新加载一下即可
       },
     }
